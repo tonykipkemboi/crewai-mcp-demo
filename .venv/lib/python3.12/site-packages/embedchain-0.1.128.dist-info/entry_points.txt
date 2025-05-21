@@ -1,0 +1,3 @@
+[console_scripts]
+ec=embedchain.cli:cli
+

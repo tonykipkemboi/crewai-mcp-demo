@@ -1,0 +1,2 @@
+[console_scripts]
+gptcache_server = gptcache_server.server:main

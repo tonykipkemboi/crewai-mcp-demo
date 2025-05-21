@@ -1,0 +1,306 @@
+Metadata-Version: 2.4
+Name: crewai-tools
+Version: 0.45.0
+Summary: Set of tools for the crewAI framework
+Project-URL: Homepage, https://crewai.com
+Project-URL: Repository, https://github.com/crewAIInc/crewAI-tools
+Project-URL: Documentation, https://docs.crewai.com
+Author-email: João Moura <joaomdmoura@gmail.com>
+License-File: LICENSE
+Requires-Python: <=3.13,>=3.10
+Requires-Dist: chromadb>=0.4.22
+Requires-Dist: click>=8.1.8
+Requires-Dist: crewai>=0.119.0
+Requires-Dist: docker>=7.1.0
+Requires-Dist: embedchain>=0.1.114
+Requires-Dist: lancedb>=0.5.4
+Requires-Dist: openai>=1.12.0
+Requires-Dist: pydantic>=2.6.1
+Requires-Dist: pyright>=1.1.350
+Requires-Dist: pytube>=15.0.0
+Requires-Dist: requests>=2.31.0
+Provides-Extra: apify
+Requires-Dist: langchain-apify<1.0.0,>=0.1.2; extra == 'apify'
+Provides-Extra: beautifulsoup4
+Requires-Dist: beautifulsoup4>=4.12.3; extra == 'beautifulsoup4'
+Provides-Extra: browserbase
+Requires-Dist: browserbase>=1.0.5; extra == 'browserbase'
+Provides-Extra: composio-core
+Requires-Dist: composio-core>=0.6.11.post1; extra == 'composio-core'
+Provides-Extra: databricks-sdk
+Requires-Dist: databricks-sdk>=0.46.0; extra == 'databricks-sdk'
+Provides-Extra: exa-py
+Requires-Dist: exa-py>=1.8.7; extra == 'exa-py'
+Provides-Extra: firecrawl-py
+Requires-Dist: firecrawl-py>=1.8.0; extra == 'firecrawl-py'
+Provides-Extra: github
+Requires-Dist: gitpython==3.1.38; extra == 'github'
+Requires-Dist: pygithub==1.59.1; extra == 'github'
+Provides-Extra: hyperbrowser
+Requires-Dist: hyperbrowser>=0.18.0; extra == 'hyperbrowser'
+Provides-Extra: linkup-sdk
+Requires-Dist: linkup-sdk>=0.2.2; extra == 'linkup-sdk'
+Provides-Extra: mcp
+Requires-Dist: mcp>=1.6.0; extra == 'mcp'
+Requires-Dist: mcpadapt>=0.1.3; extra == 'mcp'
+Provides-Extra: multion
+Requires-Dist: multion>=1.1.0; extra == 'multion'
+Provides-Extra: patronus
+Requires-Dist: patronus>=0.0.16; extra == 'patronus'
+Provides-Extra: qdrant-client
+Requires-Dist: qdrant-client>=1.12.1; extra == 'qdrant-client'
+Provides-Extra: scrapegraph-py
+Requires-Dist: scrapegraph-py>=1.9.0; extra == 'scrapegraph-py'
+Provides-Extra: scrapfly-sdk
+Requires-Dist: scrapfly-sdk>=0.8.19; extra == 'scrapfly-sdk'
+Provides-Extra: selenium
+Requires-Dist: selenium>=4.27.1; extra == 'selenium'
+Provides-Extra: serpapi
+Requires-Dist: serpapi>=0.1.5; extra == 'serpapi'
+Provides-Extra: snowflake
+Requires-Dist: cryptography>=43.0.3; extra == 'snowflake'
+Requires-Dist: snowflake-connector-python>=3.12.4; extra == 'snowflake'
+Requires-Dist: snowflake-sqlalchemy>=1.7.3; extra == 'snowflake'
+Provides-Extra: spider-client
+Requires-Dist: spider-client>=0.1.25; extra == 'spider-client'
+Provides-Extra: sqlalchemy
+Requires-Dist: sqlalchemy>=2.0.35; extra == 'sqlalchemy'
+Provides-Extra: stagehand
+Requires-Dist: stagehand-py>=0.3.6; extra == 'stagehand'
+Provides-Extra: tavily-python
+Requires-Dist: tavily-python>=0.5.4; extra == 'tavily-python'
+Provides-Extra: weaviate-client
+Requires-Dist: weaviate-client>=4.10.2; extra == 'weaviate-client'
+Provides-Extra: xml
+Requires-Dist: unstructured[all-docs,local-inference]>=0.17.2; extra == 'xml'
+Description-Content-Type: text/markdown
+
+<div align="center">
+
+![Logo of crewAI, two people rowing on a boat](./assets/crewai_logo.png)
+
+<div align="left">
+
+# CrewAI Tools
+
+Empower your CrewAI agents with powerful, customizable tools to elevate their capabilities and tackle sophisticated, real-world tasks.
+
+CrewAI Tools provide the essential functionality to extend your agents, helping you rapidly enhance your automations with reliable, ready-to-use tools or custom-built solutions tailored precisely to your needs.
+
+---
+
+## Quick Links
+
+[Homepage](https://www.crewai.com/) | [Documentation](https://docs.crewai.com/) | [Examples](https://github.com/crewAIInc/crewAI-examples) | [Community](https://community.crewai.com/)
+
+---
+
+## Available Tools
+
+CrewAI provides an extensive collection of powerful tools ready to enhance your agents:
+
+- **File Management**: `FileReadTool`, `FileWriteTool`
+- **Web Scraping**: `ScrapeWebsiteTool`, `SeleniumScrapingTool`
+- **Database Integrations**: `PGSearchTool`, `MySQLSearchTool`
+- **API Integrations**: `SerperApiTool`, `EXASearchTool`
+- **AI-powered Tools**: `DallETool`, `VisionTool`, `StagehandTool`
+
+And many more robust tools to simplify your agent integrations.
+
+---
+
+## Creating Custom Tools
+
+CrewAI offers two straightforward approaches to creating custom tools:
+
+### Subclassing `BaseTool`
+
+Define your tool by subclassing:
+
+```python
+from crewai.tools import BaseTool
+
+class MyCustomTool(BaseTool):
+    name: str = "Tool Name"
+    description: str = "Detailed description here."
+
+    def _run(self, *args, **kwargs):
+        # Your tool logic here
+```
+
+### Using the `tool` Decorator
+
+Quickly create lightweight tools using decorators:
+
+```python
+from crewai import tool
+
+@tool("Tool Name")
+def my_custom_function(input):
+    # Tool logic here
+    return output
+```
+
+---
+
+## CrewAI Tools and MCP
+
+CrewAI Tools supports the Model Context Protocol (MCP). It gives you access to thousands of tools from the hundreds of MCP servers out there built by the community.
+
+Before you start using MCP with CrewAI tools, you need to install the `mcp` extra dependencies:
+
+```bash
+pip install crewai-tools[mcp]
+# or
+uv add crewai-tools --extra mcp
+```
+
+To quickly get started with MCP in CrewAI you have 2 options:
+
+### Option 1: Fully managed connection
+
+In this scenario we use a contextmanager (`with` statement) to start and stop the the connection with the MCP server.
+This is done in the background and you only get to interact with the CrewAI tools corresponding to the MCP server's tools.
+
+For an STDIO based MCP server:
+
+```python
+from mcp import StdioServerParameters
+from crewai_tools import MCPServerAdapter
+
+serverparams = StdioServerParameters(
+    command="uvx",
+    args=["--quiet", "pubmedmcp@0.1.3"],
+    env={"UV_PYTHON": "3.12", **os.environ},
+)
+
+with MCPServerAdapter(serverparams) as tools:
+    # tools is now a list of CrewAI Tools matching 1:1 with the MCP server's tools
+    agent = Agent(..., tools=tools)
+    task = Task(...)
+    crew = Crew(..., agents=[agent], tasks=[task])
+    crew.kickoff(...)
+```
+For an SSE based MCP server:
+
+```python
+serverparams = {"url": "http://localhost:8000/sse"}
+with MCPServerAdapter(serverparams) as tools:
+    # tools is now a list of CrewAI Tools matching 1:1 with the MCP server's tools
+    agent = Agent(..., tools=tools)
+    task = Task(...)
+    crew = Crew(..., agents=[agent], tasks=[task])
+    crew.kickoff(...)
+```
+
+### Option 2: More control over the MCP connection
+
+If you need more control over the MCP connection, you can instanciate the MCPServerAdapter into an `mcp_server_adapter` object which can be used to manage the connection with the MCP server and access the available tools.
+
+**important**: in this case you need to call `mcp_server_adapter.stop()` to make sure the connection is correctly stopped. We recommend that you use a `try ... finally` block run to make sure the `.stop()` is called even in case of errors.
+
+Here is the same example for an STDIO MCP Server:
+
+```python
+from mcp import StdioServerParameters
+from crewai_tools import MCPServerAdapter
+
+serverparams = StdioServerParameters(
+    command="uvx",
+    args=["--quiet", "pubmedmcp@0.1.3"],
+    env={"UV_PYTHON": "3.12", **os.environ},
+)
+
+try:
+    mcp_server_adapter = MCPServerAdapter(serverparams)
+    tools = mcp_server_adapter.tools
+    # tools is now a list of CrewAI Tools matching 1:1 with the MCP server's tools
+    agent = Agent(..., tools=tools)
+    task = Task(...)
+    crew = Crew(..., agents=[agent], tasks=[task])
+    crew.kickoff(...)
+
+# ** important ** don't forget to stop the connection
+finally: 
+    mcp_server_adapter.stop()
+```
+
+And finally the same thing but for an SSE MCP Server:
+
+```python
+from mcp import StdioServerParameters
+from crewai_tools import MCPServerAdapter
+
+serverparams = {"url": "http://localhost:8000/sse"}
+
+try:
+    mcp_server_adapter = MCPServerAdapter(serverparams)
+    tools = mcp_server_adapter.tools
+    # tools is now a list of CrewAI Tools matching 1:1 with the MCP server's tools
+    agent = Agent(..., tools=tools)
+    task = Task(...)
+    crew = Crew(..., agents=[agent], tasks=[task])
+    crew.kickoff(...)
+
+# ** important ** don't forget to stop the connection
+finally: 
+    mcp_server_adapter.stop()
+```
+
+### Considerations & Limitations
+
+#### Staying Safe with MCP
+
+Always make sure that you trust the MCP Server before using it. Using an STDIO server will execute code on your machine. Using SSE is still not a silver bullet with many injection possible into your application from a malicious MCP server.
+
+#### Limitations
+
+* At this time we only support tools from MCP Server not other type of primitives like prompts, resources...
+* We only return the first text output returned by the MCP Server tool using `.content[0].text`
+
+---
+
+## Why Use CrewAI Tools?
+
+- **Simplicity & Flexibility**: Easy-to-use yet powerful enough for complex workflows.
+- **Rapid Integration**: Seamlessly incorporate external services, APIs, and databases.
+- **Enterprise Ready**: Built for stability, performance, and consistent results.
+
+---
+
+## Contribution Guidelines
+
+We welcome contributions from the community!
+
+1. Fork and clone the repository.
+2. Create a new branch (`git checkout -b feature/my-feature`).
+3. Commit your changes (`git commit -m 'Add my feature'`).
+4. Push your branch (`git push origin feature/my-feature`).
+5. Open a pull request.
+
+---
+
+## Developer Quickstart
+
+```shell
+pip install crewai[tools]
+```
+
+### Development Setup
+
+- Install dependencies: `uv sync`
+- Run tests: `uv run pytest`
+- Run static type checking: `uv run pyright`
+- Set up pre-commit hooks: `pre-commit install`
+
+---
+
+## Support and Community
+
+Join our rapidly growing community and receive real-time support:
+
+- [Discourse](https://community.crewai.com/)
+- [Open an Issue](https://github.com/crewAIInc/crewAI/issues)
+
+Build smarter, faster, and more powerful AI solutions—powered by CrewAI Tools.
+
