@@ -1,6 +1,0 @@
-from networkx.utils.backends import _dispatchable
-
-@_dispatchable
-def mycielskian(G, iterations: int = 1): ...
-@_dispatchable
-def mycielski_graph(n): ...

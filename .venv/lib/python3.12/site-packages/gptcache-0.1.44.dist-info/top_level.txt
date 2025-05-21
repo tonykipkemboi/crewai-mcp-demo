@@ -1,2 +1,0 @@
-gptcache
-gptcache_server

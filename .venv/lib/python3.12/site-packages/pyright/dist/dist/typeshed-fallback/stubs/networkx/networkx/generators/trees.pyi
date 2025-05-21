@@ -1,6 +1,0 @@
-from networkx.utils.backends import _dispatchable
-
-@_dispatchable
-def prefix_tree(paths): ...
-@_dispatchable
-def prefix_tree_recursive(paths): ...

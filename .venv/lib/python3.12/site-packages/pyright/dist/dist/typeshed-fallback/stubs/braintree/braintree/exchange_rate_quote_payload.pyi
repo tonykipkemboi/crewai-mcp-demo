@@ -1,6 +1,0 @@
-from _typeshed import Incomplete
-
-class ExchangeRateQuotePayload:
-    quotes: Incomplete
-    def __init__(self, data) -> None: ...
-    def get_quotes(self): ...
