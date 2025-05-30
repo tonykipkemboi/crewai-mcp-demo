@@ -1,61 +1,58 @@
-To add OAuth to a remote MCP server on Cloudflare, follow these steps:
+# Agents > Model Context Protocol (MCP) > Transport
 
-1. **Create and Deploy Your MCP Server**:
-   Run the following command to create a new MCP server:
-   
-   ```sh
-   npm create cloudflare@latest
-   ```
-   Move into your project folder:
-   
-   ```sh
-   cd my-mcp-server-github-auth
-   ```
-   Deploy the MCP server:
-   
-   ```sh
-   npx wrangler@latest deploy
-   ```
+The Model Context Protocol (MCP) specification defines three standard transport mechanisms for communication between clients and servers:
 
-2. **Set Up OAuth Provider**:
-   In your `src/index.ts`, set the `defaultHandler` to the relevant OAuth handler. For example, if using GitHub as the OAuth provider, it would look like this:
+1. **stdio, communication over standard in and standard out** — designed for local MCP connections.
+2. **Server-Sent Events (SSE)** — Currently supported by most remote MCP clients, but is expected to be replaced by Streamable HTTP over time. It requires two endpoints: one for sending requests, another for receiving streamed responses.
+3. **Streamable HTTP** — New transport method introduced in March 2025. It simplifies communication by using a single HTTP endpoint for bidirectional messaging. It is currently gaining adoption among remote MCP clients but is expected to become the standard transport in the future.
 
-   ```ts
-   import GitHubHandler from "./github-handler";
+MCP servers built with the Agents SDK can support both remote transport methods (SSE and Streamable HTTP), with the `McpAgent` class automatically handling the transport configuration. 
 
-   export default new OAuthProvider({
-       apiRoute: "/sse",
-       apiHandler: MyMCP.Router,
-       defaultHandler: GitHubHandler,
-       authorizeEndpoint: "/authorize",
-       tokenEndpoint: "/token",
-       clientRegistrationEndpoint: "/register",
-   });
-   ```
+## Implementing remote MCP transport
 
-3. **Create Your OAuth App**:
-   You need to create OAuth client apps in your chosen OAuth provider (e.g., GitHub). Obtain the client ID and secret, and configure them in your MCP server settings.
+If you're building a new MCP server or upgrading an existing one on Cloudflare, supporting both remote transport methods (SSE and Streamable HTTP) concurrently is recommended to ensure compatibility with all MCP clients.
 
-4. **Handling Authentication and Authorization**:
-   Your MCP Server can handle authorization itself while relying on an external authentication service to authenticate users. You will implement your authentication handler either manually or using a service like the Cloudflare Workers OAuth Provider Library.
+### Get started quickly
+You can deploy a remote MCP server that automatically supports both SSE and Streamable HTTP transport methods.
 
-5. **Using Third-party OAuth Provider**:
-   If using a third-party OAuth provider like GitHub, Google, or Auth0, ensure your `OAuthProvider` is configured with your custom handler that implements the OAuth flow. This may look similar to:
+#### Remote MCP server (without authentication)
+If you're manually configuring your MCP server, here's how to use the `McpAgent` class to handle both transport methods:
 
-   ```ts
-   import MyAuthHandler from "./auth-handler";
+```js
+export default {
+  fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const { pathname } = new URL(request.url);
+    
+    if (pathname.startsWith('/sse')) {
+      return MyMcpAgent.serveSSE('/sse').fetch(request, env, ctx);
+    }
+    
+    if (pathname.startsWith('/mcp')) {
+      return MyMcpAgent.serve('/mcp').fetch(request, env, ctx);
+    }
+  },
+};
+```
 
-   export default new OAuthProvider({
-       apiRoute: "/mcp",
-       apiHandler: MyMCPServer.Router,
-       defaultHandler: MyAuthHandler,
-       authorizeEndpoint: "/authorize",
-       tokenEndpoint: "/token",
-       clientRegistrationEndpoint: "/register",
-   });
-   ```
+### MCP Server with Authentication
+If your MCP server implements authentication & authorization using the Workers OAuth Provider Library, you can configure it to support both transport methods using the `apiHandlers` property.
 
-6. **Authorize Users**:
-   Set up processes for users to log in and authorize access through the OAuth provider. This typically involves redirecting users to the OAuth authorization URL, handling the callback with an authorization code, and exchanging the code for an access token to grant the MCP client access.
+```js
+export default new OAuthProvider({
+  apiHandlers: {
+    '/sse': MyMCP.serveSSE('/sse'),
+    '/mcp': MyMCP.serve('/mcp'),
+  },
+  // ... other OAuth configuration
+});
+```
 
-Refer to the [official Cloudflare documentation](https://developers.cloudflare.com/agents/guides/remote-mcp-server/#add-authentication) for a detailed walkthrough and example implementations.
+### Upgrading an Existing Remote MCP Server
+If you've already built a remote MCP server using the Cloudflare Agents SDK, make the following changes to support the new Streamable HTTP transport while maintaining compatibility with remote MCP clients using SSE:
+- Use `MyMcpAgent.serveSSE('/sse')` for the existing SSE transport. Previously, this would have been `MyMcpAgent.mount('/sse')`, which has been kept as an alias.
+- Add a new path with `MyMcpAgent.serve('/mcp')` to support the new Streamable HTTP transport.
+
+To use apiHandlers, ensure you update to @cloudflare/workers-oauth-provider v0.0.4 or later.
+
+### Testing with MCP Clients
+While most MCP clients have not yet adopted the new Streamable HTTP transport, you can start testing it today using `mcp-remote`, an adapter that lets MCP clients that otherwise only support local connections work with remote MCP servers.

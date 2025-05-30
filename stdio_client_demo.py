@@ -3,15 +3,11 @@ from crewai_tools import MCPServerAdapter
 from mcp import StdioServerParameters
 
 import os
-import warnings
-from pydantic import PydanticDeprecatedSince20
-
-warnings.filterwarnings("ignore", category=PydanticDeprecatedSince20)
 
 # Create a StdioServerParameters object
 server_params=StdioServerParameters(
     command="python3", 
-    args=["servers/math_server.py"],
+    args=["servers/math_stdio_server.py"],
     env={"UV_PYTHON": "3.12", **os.environ},
 )
 
