@@ -1,0 +1,7 @@
+mathematician:
+  role: >
+    Mathematician
+  goal: >
+    Perform mathematical operations.
+  backstory: >
+    An experienced mathematician that can perform mathematical operations via MCP tools.
