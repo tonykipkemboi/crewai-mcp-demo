@@ -1,22 +1,20 @@
 # CrewAI MCP Demo
 
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![CrewAI](https://img.shields.io/badge/CrewAI-Latest-green)](https://github.com/crewai/crewai)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![CrewAI](https://img.shields.io/badge/CrewAI-0.134.0%2B-green)](https://github.com/crewai/crewai)
 
-This repository demonstrates how to use the CrewAI MCP (Model Context Protocol) adapter to interact with MCP Servers using different transport mechanisms. MCP allows AI agents to access external tools and services through a standardized protocol.
+This repository demonstrates **two approaches** for using CrewAI with MCP (Model Context Protocol) to interact with external tools and services through a standardized protocol.
 
 ## 📋 Table of Contents
 
 - [Overview](#overview)
-- [Installation](#installation)
+- [Two Approaches](#two-approaches)
 - [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Streamable HTTP Demo](#streamable-http-demo)
-  - [SSE Demo](#sse-demo)
-  - [StdIO Demo](#stdio-demo)
+- [Quick Start](#quick-start)
+- [Scaffolding Approach - CrewAI Project](#scaffolding-approach---crewai-project)
+- [Script Approach - Standalone Demos](#script-approach---standalone-demos)
 - [Transport Mechanisms](#transport-mechanisms)
 - [Project Structure](#project-structure)
-- [How It Works](#how-it-works)
+- [Advanced Usage](#advanced-usage)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
@@ -25,288 +23,411 @@ This repository demonstrates how to use the CrewAI MCP (Model Context Protocol) 
 
 The Model Context Protocol (MCP) provides a standardized way for AI agents to interact with external tools and services. This demo showcases how to use CrewAI with MCP servers to build powerful AI applications that can leverage external capabilities.
 
-This project demonstrates three different transport mechanisms:
+**Transport mechanisms supported:**
+- **Streamable HTTP** - For remote hosted servers (e.g., Context7)
+- **Server-Sent Events (SSE)** - For real-time server-to-client communication
+- **Standard Input/Output (StdIO)** - For local process communication
 
-- Streamable HTTP
-- Server-Sent Events (SSE)
-- Standard Input/Output (StdIO)
+## 🚀 Two Approaches
+
+This repository demonstrates **two different ways** to integrate CrewAI with MCP:
+
+### 1. 🏗️ **Scaffolding Approach** (Recommended for Production)
+- Uses CrewAI's project scaffolding with `@CrewBase` decorator
+- Structured project with configuration files
+- Built-in `get_mcp_tools()` method (CrewAI 0.134.0+)
+- Better for complex, maintainable applications
+- **Example:** `mathematician_project/`
+
+### 2. 📝 **Script Approach** (Great for Learning/Prototyping)
+- Standalone Python scripts using `MCPServerAdapter` directly
+- Quick to set up and experiment with
+- Perfect for understanding MCP concepts
+- **Examples:** `*_client_demo.py` files in root directory
 
 ## 🛠️ Prerequisites
 
-- **Python**: Version >= 3.10 < 3.13
-- **API Key**: OpenAI API Key or an API key from another LLM provider
-- **Operating System**: macOS, Linux, or Windows
+- **Python**: Version >= 3.10 < 3.14
+- **CrewAI**: Version >= 0.134.0 (for scaffolding approach)
+- **API Key**: OpenAI API Key or another LLM provider
+- **uv** (recommended) or pip for package management
 
-## 📦 Installation
+## ⚡ Quick Start
 
-1. Clone the repository:
+### Option 1: Try the Scaffolding Approach (Mathematician Project)
 
+1. **Clone and setup:**
+   ```bash
+   git clone https://github.com/yourusername/crewai-mcp-demo.git
+   cd crewai-mcp-demo/mathematician_project
+   ```
+
+2. **Create environment and install:**
+   ```bash
+   uv venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   uv pip install -e .
+   ```
+
+3. **Set up environment:**
+   ```bash
+   # Create .env file with your API key
+   echo "OPENAI_API_KEY=your_api_key_here" > .env
+   ```
+
+4. **Run the mathematician crew:**
+   ```bash
+   crewai run
+   ```
+
+### Option 2: Try the Script Approach
+
+1. **Clone and setup:**
    ```bash
    git clone https://github.com/yourusername/crewai-mcp-demo.git
    cd crewai-mcp-demo
    ```
-2. Create and activate a virtual environment:
 
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate  # On Windows, use: .venv\Scripts\activate
-   ```
-3. Install dependencies:
-
+2. **Install dependencies:**
    ```bash
    uv pip install 'crewai-tools[mcp]'
    ```
 
-   Or if you don't have uv installed:
-
+3. **Run a demo:**
    ```bash
-   pip install 'crewai-tools[mcp]'
+   # For math operations (local server)
+   python3 stdio_client_demo.py
+   
+   # For Cloudflare docs (remote server)
+   python3 sse_client_demo.py
    ```
 
-## 🚀 Usage
+## 🏗️ Scaffolding Approach - CrewAI Project
 
-### Environment Setup
+The scaffolding approach uses CrewAI's project structure with the `@CrewBase` decorator and built-in MCP support.
 
-Create a `.env` file in the root directory with your API key:
-
-```env
-MODEL=openai/gpt-4o-mini  # or any model provider/model
-OPENAI_API_KEY=sk-proj-***
+### Project Structure
+```
+mathematician_project/
+├── src/mathematician_project/
+│   ├── crew.py              # Main crew definition with @CrewBase
+│   ├── main.py              # Entry point
+│   ├── config/
+│   │   ├── agents.yaml      # Agent configurations
+│   │   └── tasks.yaml       # Task configurations
+│   └── tools/
+│       └── custom_tool.py   # Custom tools (optional)
+├── pyproject.toml           # Dependencies and project config
+└── README.md
 ```
 
-### Streamable HTTP Demo
+### Key Features
 
-The Streamable HTTP demo shows how to create a simple greeting agent that communicates with an HTTP server.
+#### 1. Using `@CrewBase` Decorator
+```python
+from crewai.project import CrewBase, agent, crew, task
 
-1. Start the HTTP server:
+@CrewBase
+class MathematicianProject():
+    # MCP server configuration
+    mcp_server_params = {
+        "url": "https://api.context7.ai/mcp", 
+        "transport": "streamable-http"
+    }
+    
+    @agent
+    def mathematician(self) -> Agent:
+        return Agent(
+            config=self.agents_config['mathematician'],
+            tools=self.get_mcp_tools()  # Built-in method!
+        )
+```
 
+#### 2. Built-in `get_mcp_tools()` Method
+CrewAI 0.134.0+ includes a built-in `get_mcp_tools()` method:
+
+```python
+# Get all available tools
+tools=self.get_mcp_tools()
+
+# Get specific tools only
+tools=self.get_mcp_tools("tool_name_1", "tool_name_2")
+```
+
+#### 3. MCP Server Configuration Options
+
+**For Remote Servers (Streamable HTTP):**
+```python
+mcp_server_params = {
+    "url": "https://api.context7.ai/mcp", 
+    "transport": "streamable-http"
+}
+```
+
+**For Local Servers (StdIO):**
+```python
+from mcp import StdioServerParameters
+
+mcp_server_params = StdioServerParameters(
+    command="python3",
+    args=["path/to/server.py"],
+    env={"UV_PYTHON": "3.12", **os.environ}
+)
+```
+
+**For Multiple Servers:**
+```python
+mcp_server_params = [
+    {"url": "https://api.context7.ai/mcp", "transport": "streamable-http"},
+    {"url": "https://docs.mcp.cloudflare.com/sse"},
+    StdioServerParameters(command="python3", args=["local_server.py"])
+]
+```
+
+### Creating a New Scaffolded Project
+
+```bash
+# Create new CrewAI project with MCP support
+crewai create my_mcp_project
+cd my_mcp_project
+
+# Update pyproject.toml dependencies
+# Add: "crewai[tools]>=0.134.0,<1.0.0"
+# Add: "crewai-tools[mcp]>=0.47.1"
+
+# Install dependencies
+uv pip install -e .
+```
+
+## 📝 Script Approach - Standalone Demos
+
+The script approach uses standalone Python files with `MCPServerAdapter` directly.
+
+### Available Demos
+
+| Demo | Description | Transport | Server Type |
+|------|-------------|-----------|-------------|
+| `stdio_client_demo.py` | Math operations | StdIO | Local math server |
+| `sse_client_demo.py` | Cloudflare docs search | SSE | Remote Cloudflare server |
+| `streamable_http_client_demo.py` | Simple greeting | HTTP | Local hello server |
+| `multiple_servers_client_demo.py` | Combined functionality | All | Multiple servers |
+
+### Script Pattern
+```python
+from crewai import Agent, Task, Crew
+from crewai_tools import MCPServerAdapter
+
+# Configure MCP server
+server_params = {
+    "url": "https://api.example.com/mcp",
+    "transport": "streamable-http"
+}
+
+# Use MCP tools with context manager
+with MCPServerAdapter(server_params) as tools:
+    agent = Agent(
+        role="Your Agent Role",
+        goal="Your agent's goal",
+        tools=tools,  # Direct tools usage
+        verbose=True
+    )
+    
+    task = Task(
+        description="Your task description",
+        agent=agent,
+        expected_output="Expected output format"
+    )
+    
+    crew = Crew(agents=[agent], tasks=[task])
+    result = crew.kickoff()
+```
+
+### Running Script Demos
+
+1. **Math Operations (StdIO):**
    ```bash
-   python3 servers/hello_http_server.py
+   python3 stdio_client_demo.py
    ```
 
-   You should see output indicating the server is running on http://localhost:8001/mcp
-2. In a new terminal window, run the client:
-
+2. **Cloudflare Docs Search (SSE):**
    ```bash
+   python3 sse_client_demo.py
+   ```
+
+3. **Hello World (HTTP):**
+   ```bash
+   # Terminal 1: Start server
+   python3 servers/hello_http_server.py
+   
+   # Terminal 2: Run client
    python3 streamable_http_client_demo.py
    ```
-3. Follow the prompts to interact with the greeting agent.
-
-### SSE Demo
-
-The SSE demo shows how to connect to an external SSE-based MCP server.
-
-```bash
-python3 sse_client_demo.py
-```
-
-### StdIO Demo
-
-The StdIO demo demonstrates how to use a local stdio-based MCP server for mathematical operations.
-
-```bash
-python3 stdio_client_demo.py
-```
 
 ## 🔄 Transport Mechanisms
 
-This demo showcases three different transport mechanisms for MCP:
+### 1. Streamable HTTP ⭐ (Recommended)
+- **Use case**: Remote hosted servers (Context7, cloud services)
+- **Benefits**: Simple setup, bidirectional communication, web-friendly
+- **Example**: Context7 API, custom cloud MCP servers
 
-1. **Streamable HTTP**:
+```python
+server_params = {
+    "url": "https://api.context7.ai/mcp",
+    "transport": "streamable-http"
+}
+```
 
-   - A bi-directional communication protocol over HTTP
-   - Allows for streaming responses between client and server
-   - Ideal for web-based applications
-   - Used in `hello_http_server.py` and `streamable_http_client_demo.py`
-2. **Server-Sent Events (SSE)**:
+### 2. Server-Sent Events (SSE)
+- **Use case**: Real-time server-to-client updates
+- **Benefits**: Good for streaming responses, widely supported
+- **Example**: Cloudflare docs, real-time data feeds
 
-   - A one-way communication protocol where the server pushes updates to the client
-   - Good for real-time updates from server to client
-   - Used in `sse_client_demo.py`
-3. **Standard Input/Output (StdIO)**:
+```python
+server_params = {
+    "url": "https://docs.mcp.cloudflare.com/sse"
+}
+```
 
-   - A simple transport mechanism for local communication
-   - Ideal for local processes and testing
-   - Used in `math_stdio_server.py` and `stdio_client_demo.py`
+### 3. Standard Input/Output (StdIO)
+- **Use case**: Local development, testing, process-based servers
+- **Benefits**: Simple local setup, no network required
+- **Example**: Local math server, file processing tools
+
+```python
+from mcp import StdioServerParameters
+
+server_params = StdioServerParameters(
+    command="python3",
+    args=["servers/math_stdio_server.py"],
+    env={"UV_PYTHON": "3.12", **os.environ}
+)
+```
 
 ## 📁 Project Structure
 
 ```
-.
-├── .env                           # Environment variables
-├── README.md                      # This documentation
-├── output/                        # Output directory for generated content
-├── servers/                       # MCP server implementations
-│   ├── hello_http_server.py       # HTTP server with greeting tool
-│   └── math_stdio_server.py       # StdIO server with math operations
-├── streamable_http_client_demo.py # Client for the HTTP server
-├── sse_client_demo.py             # Client for SSE servers
-└── stdio_client_demo.py           # Client for StdIO servers
+crewai-mcp-demo/
+├── 🏗️ mathematician_project/          # Scaffolding approach example
+│   ├── src/mathematician_project/
+│   │   ├── crew.py                    # @CrewBase with get_mcp_tools()
+│   │   ├── main.py                    # Entry point
+│   │   ├── config/
+│   │   │   ├── agents.yaml           # Agent configurations
+│   │   │   └── tasks.yaml            # Task configurations
+│   │   └── tools/custom_tool.py      # Custom tools
+│   ├── pyproject.toml                # Project dependencies
+│   └── README.md                     # Project-specific docs
+├── 📝 Script approach demos/          # Standalone script examples
+│   ├── stdio_client_demo.py          # Math operations via StdIO
+│   ├── sse_client_demo.py            # Cloudflare docs via SSE
+│   ├── streamable_http_client_demo.py # Greeting via HTTP
+│   └── multiple_servers_client_demo.py # Multiple servers example
+├── 🖥️ servers/                        # Local MCP servers
+│   ├── hello_http_server.py          # HTTP greeting server
+│   └── math_stdio_server.py          # StdIO math server
+├── 📄 output/                         # Generated outputs
+├── LICENSE.md
+└── README.md                         # This file
 ```
 
-## ⚙️ How It Works
+## 🔧 Advanced Usage
 
-### MCP Server
+### Context7 Integration
 
-An MCP server exposes tools that can be used by AI agents. In this demo:
-
-- `hello_http_server.py` exposes a simple greeting tool over HTTP
-- `math_stdio_server.py` exposes math operations over StdIO
-
-### MCPServerAdapter Parameters
-
-The `MCPServerAdapter` class is the primary way to connect to MCP servers. It accepts a single parameter in its constructor:
+Context7 provides hosted MCP servers accessible via streamable-HTTP:
 
 ```python
-def __init__(self, serverparams: StdioServerParameters | dict[str, Any])
+# In scaffolding approach (crew.py)
+mcp_server_params = {
+    "url": "https://api.context7.ai/mcp",
+    "transport": "streamable-http"
+}
+
+# In script approach
+server_params = {
+    "url": "https://api.context7.ai/mcp", 
+    "transport": "streamable-http"
+}
 ```
 
-This parameter can be either:
+### Tool Filtering
 
-1. **A dictionary** (for HTTP and SSE transports):
-
-   ```python
-   # For Streamable HTTP
-   server_params = {
-       "url": "http://localhost:8001/mcp",  # Required: URL of the MCP server
-       "transport": "streamable-http"       # Required: Transport type
-   }
-
-   # For SSE
-   server_params = {
-       "url": "https://example.com/sse"     # Required: URL of the SSE endpoint
-   }
-   ```
-
-   **Important Note about the `/mcp` Endpoint:**
-   
-   For Streamable HTTP transport, the URL typically requires the `/mcp` path suffix. This is because:
-   
-   - The default endpoint path for MCP communication is `/mcp` in the HTTP Stream Transport specification
-   - When you configure a FastMCP server with `transport="streamable-http"`, it automatically serves the MCP API at the `/mcp` endpoint
-   - The client must connect to this specific endpoint to communicate with the MCP server
-   
-   If you customize the endpoint in your server configuration, you would need to update the client URL accordingly.
-
-2. **A StdioServerParameters object** (for STDIO transport):
-
-   ```python
-   from mcp import StdioServerParameters
-
-   server_params = StdioServerParameters(
-       command="python3",                     # Required: Command to run the server
-       args=["path/to/server_script.py"],     # Required: Arguments to the command
-       env={"VARIABLE": "value", **os.environ}  # Optional: Environment variables
-   )
-   ```
-
-### Connecting to Multiple MCP Servers
-
-`MCPServerAdapter` also supports connecting to multiple MCP servers simultaneously. This is useful when your agents need to access tools from different services, each exposed through its own MCP server.
-
-To connect to multiple servers, pass a list of server parameter objects directly to `MCPServerAdapter`. Each element in the list should be a valid server parameter configuration (e.g., a dictionary for HTTP/SSE or an `StdioServerParameters` object for Stdio).
-
-The adapter will attempt to connect to all specified servers, and the `tools` object obtained will contain a combined list of all tools available from all successfully connected servers.
-
-**Example:**
+In the scaffolding approach, you can filter which tools are available:
 
 ```python
-from crewai_tools import MCPServerAdapter
-from mcp import StdioServerParameters # If using Stdio
-import os # If using os.environ
-
-# Define configurations for multiple MCP servers
-server_configurations = [
-    # Example Streamable HTTP Server
-    {"url": "http://localhost:8001/mcp", "transport": "streamable-http"},
-    # Example SSE Server
-    {"url": "https://api.example.com/sse_mcp_endpoint"},
-    # Example StdIO Server
-    StdioServerParameters(
-        command="python3",
-        args=["path/to/your/stdio_mcp_server.py"],
-        env={"PYTHONPATH": ".", **os.environ}, # Example env
+@agent
+def researcher(self) -> Agent:
+    return Agent(
+        config=self.agents_config['researcher'],
+        tools=self.get_mcp_tools("search", "summarize")  # Only these tools
     )
-]
-
-# Use MCPServerAdapter with the list of configurations
-try:
-    with MCPServerAdapter(server_configurations) as all_tools:
-        print(f"Available tools from all MCP servers: {[tool.name for tool in all_tools]}")
-
-        # 'all_tools' can now be passed to your CrewAI agents
-        # from crewai import Agent
-        # example_agent = Agent(tools=all_tools, ...)
-except Exception as e:
-    print(f"Error connecting to MCP servers: {e}")
 ```
-This approach allows for a flexible way to manage tool sources for your CrewAI agents.
 
-### CrewAI Client
+### Environment Variables
 
-The client code demonstrates how to:
+Create a `.env` file in your project root:
 
-1. Connect to an MCP server using `MCPServerAdapter`
-2. Create an agent with access to the MCP tools
-3. Define tasks for the agent to perform
-4. Create a crew with the agent and tasks
-5. Execute the crew to perform the tasks
+```env
+# Required: Your LLM API key
+OPENAI_API_KEY=sk-proj-your-key-here
 
-Example from `streamable_http_client_demo.py`:
+# Optional: Model configuration
+MODEL=openai/gpt-4o-mini
 
-```python
-# Create a connection to the MCP server
-with MCPServerAdapter(server_params) as tools:
-    # Create an agent with access to the tools
-    agent = Agent(
-        role="Hello World",
-        goal="Greet the user.",
-        backstory="A helpful assistant for greeting users.",
-        tools=tools,
-        reasoning=True
-    )
-  
-    # Define a task for the agent
-    task = Task(
-        description="Greet the {user}.",
-        agent=agent,
-        expected_output="A very friendly greeting to the {user}."
-    )
-  
-    # Create and execute a crew
-    crew = Crew(agents=[agent], tasks=[task])
-    result = crew.kickoff(inputs={"user": input("What's your name? ")})
+# Optional: MCP server URLs (if using environment-based config)
+CONTEXT7_MCP_URL=https://api.context7.ai/mcp
 ```
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
 
-- **Port Conflict**: If you see `[Errno 48] Address already in use` when starting the HTTP server:
+1. **"AttributeError: 'CrewBase' object has no attribute 'get_mcp_tools'"**
+   - **Solution**: Upgrade to CrewAI >= 0.134.0
+   ```bash
+   uv pip install --upgrade crewai>=0.134.0
+   ```
 
-  ```python
-  # Modify the port in hello_http_server.py
-  mcp.run(
-      transport="streamable-http", 
-      host="localhost", 
-      port=8002  # Change from 8001 to another port
-  )
-  ```
+2. **Version keeps reverting to 0.130.0**
+   - **Cause**: Dependency constraint in `pyproject.toml`
+   - **Solution**: Update constraint to `"crewai[tools]>=0.134.0,<1.0.0"`
 
-  Also update the client URL in `streamable_http_client_demo.py` to match.
-- **Server Not Running**: If the client can't connect to the server, make sure the server is running in a separate terminal window.
-- **API Key Issues**: Ensure your API key is correctly set in the `.env` file and that it has not expired.
-- **Python Version**: This demo requires Python 3.12. Check your version with `python3 --version`.
+3. **MCP server connection failed**
+   - **Check**: Server URL is accessible
+   - **Check**: Network connectivity for remote servers
+   - **Check**: Local server is running for StdIO
+
+4. **Import errors**
+   - **Solution**: Ensure you have the MCP extras installed:
+   ```bash
+   uv pip install 'crewai-tools[mcp]'
+   ```
 
 ### Debugging Tips
 
-- Check server logs for error messages
-- Verify that the client is using the correct URL to connect to the server
-- Ensure all dependencies are installed correctly
+- Use `verbose=True` in your agents to see detailed execution logs
+- Check MCP server logs for connection issues
+- Test MCP servers independently before integrating with CrewAI
+- Use the script approach first to validate MCP connectivity
+
+### Version Requirements
+
+| Component | Minimum Version | Notes |
+|-----------|----------------|-------|
+| Python | 3.10 | < 3.14 for compatibility |
+| CrewAI | 0.134.0 | For `get_mcp_tools()` support |
+| crewai-tools | 0.47.1 | For MCP adapter |
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Areas where we'd love help:
+
+- Additional MCP server examples
+- More transport mechanism demos
+- Documentation improvements
+- Bug fixes and optimizations
+
+Please feel free to submit a Pull Request.
 
 ## 📄 License
 
@@ -314,4 +435,11 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ---
 
-For more details on CrewAI and MCP integration, visit the [CrewAI Documentation](https://docs.crewai.com/mcp/crewai-mcp-integration/).
+## 📚 Additional Resources
+
+- [CrewAI Documentation](https://docs.crewai.com/)
+- [CrewAI MCP Integration Guide](https://docs.crewai.com/mcp/crewai-mcp-integration/)
+- [Model Context Protocol Specification](https://github.com/modelcontextprotocol/specification)
+- [Context7 MCP Server](https://context7.ai/)
+
+**Happy building with CrewAI and MCP! 🚀**
