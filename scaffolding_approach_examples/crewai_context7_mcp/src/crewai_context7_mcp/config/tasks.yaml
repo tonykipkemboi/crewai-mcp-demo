@@ -1,0 +1,19 @@
+research_task:
+  description: >
+    Conduct a thorough research about {topic} in {library_name} using the context7-mcp server tools.
+  expected_output: >
+    The most relevant information about {topic} in {library_name}
+    Formatted as markdown without '```'
+  agent: researcher
+  output_file: 'output/{topic}_output.md'
+
+answer_task:
+  description: >
+    Generate a concise answer to the user's {topic} question based on the research conducted by the researcher.
+  expected_output: >
+    A concise answer to the user's {topic} question based on the research conducted by the researcher.
+    Formatted as markdown without '```'
+  agent: answer_generator
+  output_file: 'output/{topic}_answer.md'
+  context:
+    - research_task

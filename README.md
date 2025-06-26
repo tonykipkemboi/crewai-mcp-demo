@@ -37,13 +37,13 @@ This repository demonstrates **two different ways** to integrate CrewAI with MCP
 - Structured project with configuration files
 - Built-in `get_mcp_tools()` method (CrewAI 0.134.0+)
 - Better for complex, maintainable applications
-- **Example:** `mathematician_project/`
+- **Examples:** `scaffolding_approach_examples/` directory
 
 ### 2. 📝 **Script Approach** (Great for Learning/Prototyping)
 - Standalone Python scripts using `MCPServerAdapter` directly
 - Quick to set up and experiment with
 - Perfect for understanding MCP concepts
-- **Examples:** `*_client_demo.py` files in root directory
+- **Examples:** `*_client_demo.py` files in `script_approach_examples/` directory
 
 ## 🛠️ Prerequisites
 
@@ -59,7 +59,7 @@ This repository demonstrates **two different ways** to integrate CrewAI with MCP
 1. **Clone and setup:**
    ```bash
    git clone https://github.com/yourusername/crewai-mcp-demo.git
-   cd crewai-mcp-demo/mathematician_project
+   cd crewai-mcp-demo/scaffolding_approach_examples/mathematician_project
    ```
 
 2. **Create environment and install:**
@@ -96,10 +96,10 @@ This repository demonstrates **two different ways** to integrate CrewAI with MCP
 3. **Run a demo:**
    ```bash
    # For math operations (local server)
-   python3 stdio_client_demo.py
+   python3 script_approach_examples/stdio_client_demo.py
    
    # For Cloudflare docs (remote server)
-   python3 sse_client_demo.py
+   python3 script_approach_examples/sse_client_demo.py
    ```
 
 ## 🏗️ Scaffolding Approach - CrewAI Project
@@ -111,14 +111,15 @@ The scaffolding approach uses CrewAI's project structure with the `@CrewBase` de
 mathematician_project/
 ├── src/mathematician_project/
 │   ├── crew.py              # Main crew definition with @CrewBase
-│   ├── main.py              # Entry point
-│   ├── config/
-│   │   ├── agents.yaml      # Agent configurations
-│   │   └── tasks.yaml       # Task configurations
-│   └── tools/
-│       └── custom_tool.py   # Custom tools (optional)
-├── pyproject.toml           # Dependencies and project config
-└── README.md
+│   │   ├── crew.py              # Main crew definition with @CrewBase
+│   │   └── main.py              # Entry point
+│   │   ├── config/
+│   │   │   ├── agents.yaml      # Agent configurations
+│   │   │   └── tasks.yaml       # Task configurations
+│   │   └── tools/
+│   │       └── custom_tool.py   # Custom tools (optional)
+│   ├── pyproject.toml           # Dependencies and project config
+│   └── README.md
 ```
 
 ### Key Features
@@ -199,6 +200,43 @@ cd my_mcp_project
 uv pip install -e .
 ```
 
+### Example: Context7 Integration Demo
+
+The `scaffolding_approach_examples/crewai_context7_mcp/` project demonstrates using Context7's hosted MCP server:
+
+```python
+# scaffolding_approach_examples/crewai_context7_mcp/src/crewai_context7_mcp/crew.py
+@CrewBase
+class CrewaiContext7Mcp():
+    mcp_server_params = {
+        "url": f"https://server.smithery.ai/@upstash/context7-mcp/mcp?api_key={os.getenv('SMITHERY_API_KEY')}",
+        "transport": "streamable-http",
+    }
+    
+    @agent
+    def researcher(self) -> Agent:
+        return Agent(
+            config=self.agents_config['researcher'],
+            tools=self.get_mcp_tools()  # All available tools
+        )
+    
+    @agent
+    def answer_generator(self) -> Agent:
+        return Agent(
+            config=self.agents_config['answer_generator'],
+            tools=self.get_mcp_tools("get-library-docs")  # Filtered tools
+        )
+```
+
+**To run the Context7 demo:**
+```bash
+cd scaffolding_approach_examples/crewai_context7_mcp
+cp .env.example .env
+# Add your SMITHERY_API_KEY to .env
+uv pip install -e .
+crewai run
+```
+
 ## 📝 Script Approach - Standalone Demos
 
 The script approach uses standalone Python files with `MCPServerAdapter` directly.
@@ -246,12 +284,12 @@ with MCPServerAdapter(server_params) as tools:
 
 1. **Math Operations (StdIO):**
    ```bash
-   python3 stdio_client_demo.py
+   python3 script_approach_examples/stdio_client_demo.py
    ```
 
 2. **Cloudflare Docs Search (SSE):**
    ```bash
-   python3 sse_client_demo.py
+   python3 script_approach_examples/sse_client_demo.py
    ```
 
 3. **Hello World (HTTP):**
@@ -260,7 +298,7 @@ with MCPServerAdapter(server_params) as tools:
    python3 servers/hello_http_server.py
    
    # Terminal 2: Run client
-   python3 streamable_http_client_demo.py
+   python3 script_approach_examples/streamable_http_client_demo.py
    ```
 
 ## 🔄 Transport Mechanisms
@@ -307,17 +345,29 @@ server_params = StdioServerParameters(
 
 ```
 crewai-mcp-demo/
-├── 🏗️ mathematician_project/          # Scaffolding approach example
-│   ├── src/mathematician_project/
-│   │   ├── crew.py                    # @CrewBase with get_mcp_tools()
-│   │   ├── main.py                    # Entry point
-│   │   ├── config/
-│   │   │   ├── agents.yaml           # Agent configurations
-│   │   │   └── tasks.yaml            # Task configurations
-│   │   └── tools/custom_tool.py      # Custom tools
-│   ├── pyproject.toml                # Project dependencies
-│   └── README.md                     # Project-specific docs
-├── 📝 Script approach demos/          # Standalone script examples
+├── 🏗️ scaffolding_approach_examples/
+│   ├── mathematician_project/         # Math operations via local StdIO server
+│   │   ├── src/mathematician_project/
+│   │   │   ├── crew.py               # @CrewBase with get_mcp_tools()
+│   │   │   ├── main.py               # Entry point
+│   │   │   ├── config/
+│   │   │   │   ├── agents.yaml       # Agent configurations
+│   │   │   │   └── tasks.yaml        # Task configurations
+│   │   │   └── tools/custom_tool.py  # Custom tools
+│   │   ├── pyproject.toml            # Project dependencies
+│   │   └── README.md                 # Project-specific docs
+│   └── crewai_context7_mcp/          # Context7 integration via streamable-HTTP
+│       ├── src/crewai_context7_mcp/
+│       │   ├── crew.py               # Context7 MCP integration
+│       │   ├── main.py               # Entry point
+│       │   ├── config/
+│       │   │   ├── agents.yaml       # Agent configurations
+│       │   │   └── tasks.yaml        # Task configurations
+│       │   └── tools/custom_tool.py  # Custom tools
+│       ├── pyproject.toml            # Project dependencies
+│       ├── .env.example              # Environment variables template
+│       └── README.md                 # Project-specific docs
+├── 📝 script_approach_examples/       # Standalone script examples
 │   ├── stdio_client_demo.py          # Math operations via StdIO
 │   ├── sse_client_demo.py            # Cloudflare docs via SSE
 │   ├── streamable_http_client_demo.py # Greeting via HTTP
@@ -325,7 +375,7 @@ crewai-mcp-demo/
 ├── 🖥️ servers/                        # Local MCP servers
 │   ├── hello_http_server.py          # HTTP greeting server
 │   └── math_stdio_server.py          # StdIO math server
-├── 📄 output/                         # Generated outputs
+├── 📄 test_outputs/                   # Generated test outputs
 ├── LICENSE.md
 └── README.md                         # This file
 ```

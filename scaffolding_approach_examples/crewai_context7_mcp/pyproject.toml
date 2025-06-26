@@ -1,0 +1,23 @@
+[project]
+name = "crewai_context7_mcp"
+version = "0.1.0"
+description = "crewai-context7-mcp using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[tools]>=0.134.0,<1.0.0"
+]
+
+[project.scripts]
+crewai_context7_mcp = "crewai_context7_mcp.main:run"
+run_crew = "crewai_context7_mcp.main:run"
+train = "crewai_context7_mcp.main:train"
+replay = "crewai_context7_mcp.main:replay"
+test = "crewai_context7_mcp.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
