@@ -58,7 +58,7 @@ This repository demonstrates **two different ways** to integrate CrewAI with MCP
 
 1. **Clone and setup:**
    ```bash
-   git clone https://github.com/yourusername/crewai-mcp-demo.git
+   git clone https://github.com/tonykipkemboi/crewai-mcp-demo.git
    cd crewai-mcp-demo/scaffolding_approach_examples/mathematician_project
    ```
 
@@ -72,7 +72,7 @@ This repository demonstrates **two different ways** to integrate CrewAI with MCP
 3. **Set up environment:**
    ```bash
    # Create .env file with your API key
-   echo "OPENAI_API_KEY=your_api_key_here" > .env
+   echo "OPENAI_API_KEY=sk-your-openai-api-key-here" > .env
    ```
 
 4. **Run the mathematician crew:**
@@ -84,7 +84,7 @@ This repository demonstrates **two different ways** to integrate CrewAI with MCP
 
 1. **Clone and setup:**
    ```bash
-   git clone https://github.com/yourusername/crewai-mcp-demo.git
+   git clone https://github.com/tonykipkemboi/crewai-mcp-demo.git
    cd crewai-mcp-demo
    ```
 
@@ -419,7 +419,7 @@ Create a `.env` file in your project root:
 
 ```env
 # Required: Your LLM API key
-OPENAI_API_KEY=sk-proj-your-key-here
+OPENAI_API_KEY=sk-your-openai-api-key-here
 
 # Optional: Model configuration
 MODEL=openai/gpt-4o-mini
