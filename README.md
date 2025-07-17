@@ -149,6 +149,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## ⭐ **Star History**
 
-<iframe style="width:100%;height:auto;min-width:600px;min-height:400px;" src="https://www.star-history.com/embed?secret=Z2hwX1l5NVBiS1U2UjA0Q1ZobW1FajRoaE5ncE5WNFJHMDFpQmtPQw==#tonykipkemboi/crewai-mcp-demo&Date" frameBorder="0"></iframe>
+[![Star History Chart](https://api.star-history.com/svg?repos=tonykipkemboi/crewai-mcp-demo&type=Date)](https://star-history.com/#tonykipkemboi/crewai-mcp-demo&Date)
 
 **Happy building with CrewAI and MCP! 🚀**
