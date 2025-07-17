@@ -1,0 +1,244 @@
+regulatory_intelligence_task:
+  description: >
+    Analyze the regulatory announcement and gather comprehensive intelligence: {user_input}
+
+    **Your Mission:**
+    Use web search tools to analyze the provided regulation link and gather comprehensive 
+    intelligence about the regulatory change, its implications, and market impact.
+    
+    **Input Format Expected:**
+    - Regulation URL: [URL to regulatory announcement]  
+    - Portfolio Focus: [Optional - specific sectors or companies to focus on]
+    
+    **Intelligence Gathering Instructions:**
+    1. Analyze the provided regulation URL to extract key details
+    2. Search for related regulatory news, analysis, and expert commentary
+    3. Identify affected industries and market segments
+    4. Research regulatory timeline and implementation dates
+    5. Find regulatory agency statements and clarifications
+    6. Gather stakeholder reactions and industry responses
+    
+    **Output Format:**
+    - Regulation Summary: Title, agency, effective dates, key requirements
+    - Affected Sectors: Industries and market segments impacted
+    - Implementation Timeline: Key dates and compliance deadlines
+    - Market Intelligence: Expert analysis, stakeholder reactions, related developments
+    - Risk Factors: Potential challenges and compliance complexities
+    - Keep comprehensive but focused (400-600 words)
+  expected_output: >
+    Comprehensive regulatory intelligence report with regulation summary, affected sectors, 
+    timeline, market analysis, and risk factors for downstream analysis
+  agent: regulatory_intelligence_agent
+
+portfolio_sec_analysis_task:
+  description: >
+    Analyze SEC filing patterns for companies affected by the regulatory change identified in the previous task.
+
+    **Your Mission:**
+    Use Snowflake MCP tools to analyze historical SEC filing data for companies in sectors 
+    affected by the regulation. Focus on identifying regulatory exposure patterns and risk levels.
+    
+    **Available Tools:**
+    - SEC_FILINGS_SEARCH: Semantic search through 372,299 SEC filings from 2024-2025 for regulatory topics
+    - sec_filings_analytics: Advanced analytics for regulatory risk monitoring including:
+      * Filing frequency analysis by company and time period
+      * Regulatory event tracking (8-K current events)
+      * Risk category classification (Technology, Healthcare, Financial Services, etc.)
+      * Risk disclosure intensity measurement
+      * Company filing patterns and regulatory activity levels
+    
+    **Analysis Instructions:**
+    1. Based on affected sectors from previous task, search for relevant companies using SEC_FILINGS_SEARCH
+    2. Use sec_filings_analytics to analyze filing frequency and patterns for identified companies
+    3. Extract company names from filing content using SEC_FILINGS_SEARCH
+    4. Identify companies with high regulatory activity and disclosure patterns
+    5. Analyze historical regulatory mentions and compliance patterns
+    6. Provide quantitative risk metrics and company rankings
+    
+    **Output Format:**
+    - Affected Companies: List of companies with CIKs, names, and sector classification
+    - Filing Analysis: Frequency patterns, regulatory event counts, disclosure intensity
+    - Risk Rankings: High/Medium/Low risk categorization with supporting metrics
+    - Historical Patterns: Regulatory mention trends and compliance history
+    - Portfolio Impact: Assessment of which companies face highest regulatory exposure
+    - Include both company names AND CIK numbers for complete identification
+  expected_output: >
+    Detailed SEC filing analysis with affected companies list, risk rankings, historical patterns, 
+    and portfolio impact assessment based on quantitative filing metrics
+  agent: portfolio_sec_analyst
+  context: [regulatory_intelligence_task]
+
+market_news_analysis_task:
+  description: >
+    Research current market reactions and analyst opinions about the regulatory change and affected companies.
+
+    **Your Mission:**
+    Use web search tools to research current market sentiment, analyst reactions, and company 
+    responses to the regulatory development identified in previous tasks. Synthesize findings into 
+    a professionally formatted industry-standard regulatory impact report.
+    
+    **Research Focus:**
+    Based on the companies and regulatory change identified in previous tasks, research:
+    1. Current market reactions and stock price movements
+    2. Analyst reports and investment bank commentary
+    3. Company-specific responses and strategic adjustments
+    4. Industry association statements and lobbying efforts  
+    5. Competitor analysis and market positioning changes
+    6. Forward-looking market predictions and scenarios
+    
+    **Research Instructions:**
+    1. Search for news about the specific regulation and affected companies
+    2. Find analyst reports and investment research on regulatory impact
+    3. Research company earnings calls and investor communications
+    4. Look for industry expert opinions and market commentary
+    5. Identify trading patterns and institutional investor responses
+    6. Gather information on compliance costs and implementation strategies
+    
+    **MANDATORY OUTPUT FORMAT - PROFESSIONAL REGULATORY IMPACT REPORT:**
+    
+    Generate a comprehensive report using this EXACT structure and markdown formatting:
+    
+    ```
+    # [REGULATION TITLE] REGULATORY IMPACT ANALYSIS
+    **[Regulation ID]: [Full Regulation Title]**
+    
+    ---
+    
+    ## EXECUTIVE SUMMARY
+    
+    [2-3 paragraph executive summary with key findings, market impact, and investment thesis]
+    
+    **Key Findings:**
+    - **Market Opportunity**: [Market size and growth projections]
+    - **Industry Response**: [Industry stakeholder positions]
+    - **Portfolio Impact**: [Summary of affected companies and risk levels]
+    - **Investment Thesis**: [Overall investment outlook]
+    
+    ---
+    
+    ## METHODOLOGY
+    
+    **Regulatory Intelligence Framework:**
+    - **Agent 1**: Regulatory Intelligence Analysis via web search
+    - **Agent 2**: Historical SEC Filing Analysis via Snowflake MCP
+    - **Agent 3**: Market Sentiment & News Analysis via web search
+    
+    **Data Sources:**
+    [List primary data sources used in analysis]
+    
+    ---
+    
+    ## REGULATORY ANALYSIS
+    
+    ### **Proposed Rule Overview**
+    - **Regulation ID**: [ID]
+    - **Title**: [Title]
+    - **Scope**: [Scope details]
+    - **Objective**: [Primary objectives]
+    - **Status**: [Current status]
+    
+    ### **Key Regulatory Provisions**
+    [List 3-5 key provisions of the regulation]
+    
+    ---
+    
+    ## PORTFOLIO COMPANY ANALYSIS
+    
+    ### **HIGH RISK - DIRECT IMPACT**
+    [For each high-risk company, include:]
+    #### **[Company Name] (CIK: [Number])**
+    - **Business**: [Business description]
+    - **Filing Analysis**: [SEC filing metrics from previous task]
+    - **Risk Assessment**: [Risk factors]
+    - **Investment Implication**: [Investment considerations]
+    
+    ### **MEDIUM RISK - INDIRECT IMPACT**
+    [For each medium-risk company, same format as above]
+    
+    ---
+    
+    ## MARKET SENTIMENT ANALYSIS
+    
+    ### **Overall Market Dynamics**
+    [4-5 bullet points on market dynamics]
+    
+    ### **Competitive Landscape Shifts**
+    [4-5 bullet points on competitive implications]
+    
+    ---
+    
+    ## RISK ASSESSMENT MATRIX
+    
+    | Company | Risk Level | Primary Impact | Secondary Impact | Time Horizon |
+    |---------|------------|----------------|------------------|--------------|
+    [Table with all analyzed companies]
+    
+    ---
+    
+    ## INVESTMENT RECOMMENDATIONS
+    
+    ### **IMMEDIATE ACTIONS (0-6 months)**
+    [3-4 immediate action items]
+    
+    ### **MEDIUM-TERM POSITIONING (6-18 months)**
+    [Investment recommendations with ratings]
+    
+    ### **LONG-TERM OUTLOOK (18+ months)**
+    [3-4 long-term considerations]
+    
+    ---
+    
+    ## KEY MONITORING METRICS
+    
+    ### **Regulatory Milestones**
+    [Checklist of regulatory events to monitor]
+    
+    ### **Company Performance Indicators**
+    [Checklist of company metrics to track]
+    
+    ### **Market Signals**
+    [Checklist of market indicators]
+    
+    ---
+    
+    ## APPENDICES
+    
+    ### **Appendix A: Regulatory Timeline**
+    [Key dates and milestones]
+    
+    ### **Appendix B: Market Data**
+    [Market size, growth projections, key statistics]
+    
+    ### **Appendix C: SEC Filing Search Methodology**
+    [Methodology details from previous task]
+    
+    ---
+    
+    **Report Generated**: [Current Month/Year]
+    **Source**: AI-Powered Regulatory Monitoring System
+    **Confidence Level**: [High/Medium/Low based on data availability]
+    **Next Update**: [Trigger for next update]
+    
+    ---
+    
+    *This report was generated using a 3-agent AI system combining regulatory intelligence, SEC filing analysis, and market sentiment monitoring. All data sources and methodologies are documented for transparency and reproducibility.*
+    ```
+    
+    **CRITICAL FORMATTING REQUIREMENTS:**
+    1. Use EXACT markdown structure shown above
+    2. Include ALL sections even if data is limited
+    3. Use professional financial industry language
+    4. Include specific data points and metrics wherever possible
+    5. Provide actionable investment recommendations with clear ratings
+    6. Maintain consistent table formatting for risk assessment
+    7. Use bullet points and numbered lists for clarity
+    8. Include company CIK numbers alongside names
+    9. Reference data from previous task analyses
+    10. End with methodology transparency statement
+  expected_output: >
+    Professional industry-standard regulatory impact report in exact markdown format specified, 
+    synthesizing all previous task findings into comprehensive investment-grade analysis with 
+    executive summary, methodology, regulatory analysis, company analysis, market sentiment, 
+    risk assessment matrix, investment recommendations, monitoring metrics, and appendices
+  agent: market_news_analyst
+  context: [regulatory_intelligence_task, portfolio_sec_analysis_task]

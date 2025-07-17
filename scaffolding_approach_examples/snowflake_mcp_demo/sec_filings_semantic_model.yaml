@@ -1,0 +1,162 @@
+name: Universal Regulatory Risk Analytics
+description: >
+  Comprehensive semantic model for multi-sector SEC filings regulatory risk monitoring and compliance analysis.
+  Enables asset managers to perform portfolio risk assessment and regulatory impact analysis across all industries
+  including technology, healthcare, financial services, energy, manufacturing, and more.
+
+tables:
+  - name: sec_filings
+    description: >
+      Multi-sector SEC filings data from 2024-2025 for comprehensive regulatory risk monitoring and compliance analysis.
+      Contains 372,299 filings across all industries including technology, healthcare, financial services, energy, 
+      manufacturing, and environmental sectors. Includes 8-K current reports, 10-Q quarterly reports, 
+      10-K annual reports, and exhibits for cross-sector regulatory pattern recognition.
+    
+    base_table:
+      database: MCP_DEMO
+      schema: PUBLIC 
+      table: SEC_FILINGS_TEXT
+    
+    primary_key:
+      columns:
+        - SEC_DOCUMENT_ID
+    
+    # === DIMENSIONS (Categorical data for grouping/filtering) ===
+    dimensions:
+      - name: company_cik
+        description: Central Index Key (CIK) uniquely identifying public companies
+        expr: CIK
+        data_type: varchar
+        synonyms: ["cik", "company id", "central index key", "company identifier"]
+        
+      - name: filing_type
+        description: >
+          Type of SEC filing: 10-K (annual reports), 10-Q (quarterly reports), 
+          8-K (current events), DEF-14A (proxy statements), Registration statements
+        expr: >
+          CASE 
+            WHEN SEC_DOCUMENT_ID LIKE '%_10-K%' THEN '10-K'
+            WHEN SEC_DOCUMENT_ID LIKE '%_10-Q%' THEN '10-Q'
+            WHEN SEC_DOCUMENT_ID LIKE '%_8-K%' THEN '8-K'
+            WHEN SEC_DOCUMENT_ID LIKE '%_DEF%' THEN 'DEF-14A'
+            WHEN SEC_DOCUMENT_ID LIKE '%_S-%' THEN 'Registration'
+            ELSE 'Other'
+          END
+        data_type: varchar
+        synonyms: ["document type", "filing form", "sec form type", "form type"]
+        sample_values: ["10-K", "10-Q", "8-K", "DEF-14A", "Registration", "Other"]
+        
+      - name: risk_category
+        description: >
+          Multi-sector risk category classification based on filing content analysis for comprehensive regulatory monitoring.
+          Categories span technology, healthcare, financial services, energy, manufacturing, and environmental sectors.
+        expr: >
+          CASE 
+            WHEN UPPER(FILING_CONTENT) LIKE '%CYBERSECURITY%' OR UPPER(FILING_CONTENT) LIKE '%DATA BREACH%' OR UPPER(FILING_CONTENT) LIKE '%CYBER%' THEN 'Technology/Cybersecurity'
+            WHEN UPPER(FILING_CONTENT) LIKE '%FDA%' OR UPPER(FILING_CONTENT) LIKE '%DRUG%' OR UPPER(FILING_CONTENT) LIKE '%CLINICAL%' OR UPPER(FILING_CONTENT) LIKE '%MEDICAL%' THEN 'Healthcare/Life Sciences'
+            WHEN UPPER(FILING_CONTENT) LIKE '%ENVIRONMENTAL%' OR UPPER(FILING_CONTENT) LIKE '%EPA%' OR UPPER(FILING_CONTENT) LIKE '%CLIMATE%' OR UPPER(FILING_CONTENT) LIKE '%CARBON%' THEN 'Environmental/ESG'
+            WHEN UPPER(FILING_CONTENT) LIKE '%FINANCIAL%' OR UPPER(FILING_CONTENT) LIKE '%BANKING%' OR UPPER(FILING_CONTENT) LIKE '%FINTECH%' OR UPPER(FILING_CONTENT) LIKE '%SECURITIES%' THEN 'Financial Services'
+            WHEN UPPER(FILING_CONTENT) LIKE '%ENERGY%' OR UPPER(FILING_CONTENT) LIKE '%OIL%' OR UPPER(FILING_CONTENT) LIKE '%GAS%' OR UPPER(FILING_CONTENT) LIKE '%RENEWABLE%' THEN 'Energy/Utilities'
+            WHEN UPPER(FILING_CONTENT) LIKE '%MANUFACTURING%' OR UPPER(FILING_CONTENT) LIKE '%SUPPLY CHAIN%' OR UPPER(FILING_CONTENT) LIKE '%INDUSTRIAL%' THEN 'Manufacturing/Industrial'
+            WHEN UPPER(FILING_CONTENT) LIKE '%REGULATORY%' OR UPPER(FILING_CONTENT) LIKE '%COMPLIANCE%' THEN 'General Regulatory'
+            ELSE 'Other'
+          END
+        data_type: varchar
+        synonyms: ["risk type", "regulatory area", "compliance category", "risk classification", "sector risk"]
+        sample_values: ["Technology/Cybersecurity", "Healthcare/Life Sciences", "Environmental/ESG", "Financial Services", "Energy/Utilities", "Manufacturing/Industrial", "General Regulatory", "Other"]
+    
+    # === TIME DIMENSIONS (Temporal data for trend analysis) ===
+    time_dimensions:
+      - name: filing_date
+        description: >
+          Date when the SEC filing period ended, used for temporal risk analysis 
+          and regulatory trend monitoring across quarters and years
+        expr: PERIOD_END_DATE
+        data_type: date
+        synonyms: ["period end date", "filing period", "report date", "end date"]
+        
+      - name: filing_year
+        description: Year of the SEC filing for annual regulatory trend analysis and year-over-year comparison
+        expr: YEAR(PERIOD_END_DATE)
+        data_type: number
+        synonyms: ["year", "annual period", "filing year", "report year"]
+        
+      - name: filing_quarter
+        description: Quarter of the SEC filing for quarterly regulatory risk monitoring and seasonal analysis  
+        expr: QUARTER(PERIOD_END_DATE)
+        data_type: number
+        synonyms: ["quarter", "q1 q2 q3 q4", "quarterly period", "fiscal quarter"]
+    
+    # === FACTS (Raw measurable data) ===
+    facts:
+      - name: content_length
+        description: >
+          Length of filing content in characters, indicating disclosure complexity 
+          and regulatory burden. Longer filings often indicate higher regulatory complexity.
+        expr: LENGTH(FILING_CONTENT)
+        data_type: number
+        synonyms: ["filing length", "document size", "disclosure length", "content size"]
+    
+    # === METRICS (Aggregated business measures) ===
+    metrics:
+      - name: total_filings
+        description: Total number of SEC filings for regulatory activity monitoring and portfolio exposure analysis
+        expr: COUNT(*)
+        synonyms: ["filing count", "number of filings", "document count", "total documents"]
+        
+      - name: regulatory_events
+        description: >
+          Count of 8-K current event filings indicating regulatory or material events.
+          8-K filings are immediate reports filed when significant events occur.
+        expr: COUNT(CASE WHEN SEC_DOCUMENT_ID LIKE '%_8-K%' THEN 1 END)
+        synonyms: ["8-k filings", "current events", "material events", "immediate reports"]
+        
+      - name: risk_disclosure_intensity  
+        description: >
+          Average length of filings indicating disclosure intensity and regulatory complexity.
+          Higher values suggest more detailed regulatory disclosures.
+        expr: AVG(LENGTH(FILING_CONTENT))
+        synonyms: ["disclosure complexity", "filing intensity", "regulatory burden", "average filing length"]
+        
+      - name: company_filing_frequency
+        description: >
+          Average number of filings per company, indicating regulatory activity level.
+          Higher frequency may indicate higher regulatory exposure or activity.
+        expr: COUNT(*) / COUNT(DISTINCT CIK)
+        synonyms: ["filings per company", "company activity", "regulatory frequency", "filing rate"]
+        
+      - name: high_risk_filing_ratio
+        description: >
+          Ratio of filings mentioning risk or regulatory issues to total filings.
+          Indicates portfolio exposure to regulatory risk factors.
+        expr: COUNT(CASE WHEN UPPER(FILING_CONTENT) LIKE '%RISK%' OR UPPER(FILING_CONTENT) LIKE '%REGULATORY%' THEN 1 END) / COUNT(*)
+        synonyms: ["risk mention ratio", "regulatory mention rate", "risk disclosure rate", "risk exposure ratio"]
+    
+    # === FILTERS (Universal regulatory monitoring filters) ===
+    filters:
+      - name: current_year
+        description: Filter for current year filings (2024-2025) for recent regulatory analysis
+        expr: YEAR(PERIOD_END_DATE) >= 2024
+        synonyms: ["recent filings", "current period", "latest filings"]
+        
+      - name: material_events
+        description: Filter for 8-K current event filings indicating material regulatory events
+        expr: SEC_DOCUMENT_ID LIKE '%_8-K%'
+        synonyms: ["8-k only", "current events only", "material events only"]
+        
+      - name: high_risk_filings
+        description: Filter for filings mentioning regulatory risks, compliance issues, or material events
+        expr: UPPER(FILING_CONTENT) LIKE '%RISK%' OR UPPER(FILING_CONTENT) LIKE '%REGULATORY%' OR UPPER(FILING_CONTENT) LIKE '%COMPLIANCE%'
+        synonyms: ["risk filings", "regulatory mentions", "compliance issues"]
+        
+      - name: quarterly_filings
+        description: Filter for quarterly reports (10-Q) for periodic regulatory monitoring
+        expr: SEC_DOCUMENT_ID LIKE '%_10-Q%'
+        synonyms: ["10-q only", "quarterly reports", "periodic filings"]
+        
+      - name: annual_filings
+        description: Filter for annual reports (10-K) for comprehensive regulatory analysis
+        expr: SEC_DOCUMENT_ID LIKE '%_10-K%'
+        synonyms: ["10-k only", "annual reports", "yearly filings"]
+
+ 

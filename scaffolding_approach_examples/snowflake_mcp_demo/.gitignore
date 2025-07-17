@@ -1,0 +1,26 @@
+.env
+__pycache__/
+.DS_Store
+
+# YouTube tutorial content and miscellaneous files
+misc/
+images/
+
+# Video and media files
+*.mp4
+*.mov
+*.avi
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Documentation drafts
+*_script.md
+*_assets.md
+*tutorial*
+*Tutorial*
+
+# Exclude bright data MCP example
+../../script_approach_examples/bright_data_mcp.py
+../../script_approach_examples/outputs/

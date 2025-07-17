@@ -1,0 +1,19 @@
+search_services: # List all Cortex Search services
+  - service_name: "SEC_FILINGS_SEARCH"
+    description: >
+      Search service that provides semantic search over 372,299 SEC filings from 2024-2025.
+      Search through 8-K current reports, 10-Q quarterly reports, 10-K annual reports, and exhibits.
+      Perfect for finding companies by risk factors, business developments, financial disclosures,
+      cybersecurity incidents, mergers & acquisitions, and regulatory compliance topics.
+    database_name: "MCP_DEMO"
+    schema_name: "PUBLIC"
+    columns: ["SEC_DOCUMENT_ID", "CIK", "VARIABLE_NAME", "PERIOD_END_DATE", "FILING_CONTENT"]  # Include actual content
+    limit: 3  # Reduced to handle larger content while still getting diverse results
+
+analyst_services: # List all Cortex Analyst semantic models/views  
+  - service_name: "sec_filings_analytics"
+    semantic_model: "@MCP_DEMO.PUBLIC.semantic_models/sec_filings_semantic_model.yaml"
+    description: >
+      Regulatory risk monitoring and compliance analysis service for SEC filings.
+      Ask questions about filing patterns, regulatory events, risk categories, company filing frequency,
+      and regulatory impact analysis. Perfect for asset managers monitoring portfolio regulatory exposure. 
