@@ -48,7 +48,7 @@ The system uses three specialized agents:
 ### 1. Clone and Setup Project
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/tonykipkemboi/crewai-mcp-demo.git
 cd crewai-mcp-demo/scaffolding_approach_examples/snowflake_mcp_demo
 
 # Install dependencies with UV
